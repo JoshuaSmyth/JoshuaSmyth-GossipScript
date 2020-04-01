@@ -1,0 +1,53 @@
+﻿@GossipScript
+{
+  .name:"Sample"
+  .author:"Joshua Smyth"
+  .entry:@p1
+}
+
+@p1
+{
+  once-only
+  {
+    case-true 
+    {
+      say actor:roz text:"Oh I didn't see you there"
+    }
+    case-false
+    {
+      say actor:harry text:"We really gotta get a move on..."
+      exit
+    }
+  }
+  
+  say pos:"right" actor:"roz" text:"Roz, where have you been did you get seperated?"
+  say pos:"left"  actor:"roz" text:"Huh? Sorry I... uh? must have... Wait! Who are you?"
+  say pos:"right" actor:"zak" text:"Don't tell me you can't remember, it's me! We went through a portal and found ourselves stuck in this place."
+  say pos:"left"  actor:"roz" text:"I...think I was asleep...?"
+  say pos:"right" actor:"harry" text:"No good, The Morrigan must of cast a spell on her. Poor lass - Can't recall a thing. It's not safe here for the two of you."
+  say pos:"right" actor:"harry" text:"We my dear, are heading up the mountain to meet the Great Academic. If he doesn't know how to get you two home nobody will!"
+
+  show-options remove-on-select:"true"
+  {
+    option text:"Who is this Morrigan?" 
+    {
+      say actor:"harry" text:"She's the ruler of this land. Let's just say it would be bad if we ran into her." pos:right
+      say actor:"harry" text:"So far, I don't think she knows you are here, but if she found out a human, two humans no less... Well, we need to get you both outta here." pos:right
+    }
+    option text:"What do you mean it isn't safe"
+    {
+      say actor:"harry" text:"It wasn't always this ways you know. There was a time when the creatures of the valley and us Hobgoblins - and Humans too, could all live in harmony." position="right"
+      say actor:"harry" text:"But now with The Morrigan in power. The valley can be a dangerous place." position="right"
+    }
+    option text="Do you all have blue skin and green hair?" optional-for-advance:true 
+    {
+      say actor:"harry" text:"Do you all have red hair, freckles and pasty skin? Humans, think we all look alike they do." id="#0010" />
+    }
+    option-exit text:"Let's Go!"
+    {
+      say actor:"roz" text="Bye" position="left"
+    }
+  }
+
+  say actor:harry text:"We need to head north. There's a cave up thatta ways which will lead us to the Great Academic." pos:right
+}

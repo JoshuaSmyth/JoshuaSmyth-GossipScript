@@ -1,0 +1,55 @@
+﻿@GossipScript::[25]
+.name:"Sample"
+.entry:@p1
+.author:"Joshua Smyth"
+  
+@p1::[4]
+
+  once-only::[9]
+  {
+    case-true 
+    {
+      say actor:roz text:"Oh I didn't see you there"::[0]
+    }
+    case-false 
+    {
+      say actor:harry text:"We really gotta get a move on..."::[1]
+      exit
+    }
+  }
+  
+  say pos:"right" actor:"roz" text:"Roz, where have you been did you get seperated?"::[2]
+  say pos:"left"  actor:"roz" text:"Huh? Sorry I... uh? must have... Wait! Who are you?"::[3]
+  say pos:"right" actor:"zak" text:"Don't tell me you can't remember, it's me! We went through a portal and found ourselves stuck in this place."::[5]
+  say pos:"left"  actor:"roz" text:"I...think I was asleep...?"::[6]
+  say pos:"right" actor:"harry" text:"No good, The Morrigan must of cast a spell on her. Poor lass - Can't recall a thing. It's not safe here for the two of you."::[7]
+  say pos:"right" actor:"harry" text:"We my dear, are heading up the mountain to meet the Great Academic. If he doesn't know how to get you two home nobody will!"::[8]
+
+  select::[10] remove-on-select:"true" 
+  {
+    option::[22] text:"Who is this Morrigan?"::[11] 
+    {
+      say actor:"harry" text:"She's the ruler of this land. Let's just say it would be bad if we ran into her." pos:right ::[12]
+      say actor:"harry" text:"So far, I don't think she knows you are here, but if she found out a human, two humans no less... Well, we need to get you both outta here."::[13] pos:right
+    }
+    option::[23] text:"What do you mean it isn't safe"::[12]
+    {
+      say actor:"harry" text:"It wasn't always this ways you know. There was a time when the creatures of the valley and us Hobgoblins - and Humans too, could all live in harmony." position="right" ::[14]
+      say actor:"harry" text:"But now with The Morrigan in power. The valley can be a dangerous place." position="right" ::[15]
+    }
+    option::[24] text="Do you all have blue skin and green hair?"::[16] optional-for-advance:true 
+    {
+      say actor:"harry" text:"Do you all have red hair, freckles and pasty skin? Humans, think we all look alike they do." id="#0010" />
+    }
+    option-exit text:"Let's Go!"::[18]
+    {
+      say actor:"roz" text="Bye" position="left"::[19]
+    }
+  }
+  
+  say actor:harry text:"We need to head north. There's a cave up thatta ways which will lead us to the Great Academic."::[20] pos:right
+
+@ids
+  [0]:b110a4ed-a36b-439e-908f-6239accf855c
+  [1]:92bec51d-fcea-4815-bd08-cd7fbc620fcc
+  [2]:685cf2fd-988c-49eb-a411-5492d2e0ece2
