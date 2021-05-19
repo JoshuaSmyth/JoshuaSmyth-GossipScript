@@ -20,11 +20,11 @@
 
 @p2
 {
-	if expr:$player_money < $fee
+	[0bbf9b6d] if expr:$player_money < $fee
 	{
 		case-true
 		{
-			print text:"You do not have enough money"
+			print text:"You do not have enough money"::[0bbf9b6d]
 		}
 		case-false
 		{

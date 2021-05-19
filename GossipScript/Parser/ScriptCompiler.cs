@@ -37,5 +37,9 @@ namespace TranspileTest.Parser
             return rv;
         }
 
+        internal ScriptProgram CompileScript(string startScript)
+        {
+            return CompileScript(startScript, new List<string>());
+        }
     }
 }

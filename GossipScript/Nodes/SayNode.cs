@@ -11,17 +11,20 @@ namespace TranspileTest.Nodes
     {
         public string ActorId;
         public string Text;
+        public string Position;
 
         public SayNode()
         {
             NodeType = NodeType.Command;
             CommandType = CommandType.Say;
+            Position = "";
         }
 
-        public SayNode(String actorId, String text)
+        public SayNode(String actorId, String text, String position)
         {
             ActorId = actorId;
             Text = text;
+            Position = position;
             NodeType = NodeType.Command;
             CommandType = CommandType.Say;
         }
@@ -37,6 +40,7 @@ namespace TranspileTest.Nodes
             bw.Write((UInt16)2);
             bw.Write(ActorId);
             bw.Write(Text);
+            bw.Write(Position);
         }
 
         public override void readData(BinaryReader br)
@@ -44,6 +48,7 @@ namespace TranspileTest.Nodes
             br.ReadUInt16();
             ActorId = br.ReadString();
             Text = br.ReadString();
+            Position = br.ReadString();
         }
     }
 }

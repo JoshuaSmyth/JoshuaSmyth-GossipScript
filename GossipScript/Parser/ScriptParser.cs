@@ -78,6 +78,7 @@ namespace TranspileTest
 
             m_tokenizer.AddToken("actor:", SemanticTokenType.NodeParameter);
             m_tokenizer.AddToken("text:", SemanticTokenType.NodeParameter);
+            m_tokenizer.AddToken("position:", SemanticTokenType.NodeParameter);
             m_tokenizer.AddToken("node:", SemanticTokenType.NodeParameter);
             m_tokenizer.AddToken("remove-on-select:", SemanticTokenType.NodeParameter);
             m_tokenizer.AddToken("exit-on-select:", SemanticTokenType.NodeParameter);
@@ -479,11 +480,11 @@ namespace TranspileTest
                     var value = stream.Pop();
                     if (value.TokenType == SemanticTokenType.LiteralTrue)
                     {
-                        node.ExitOnSelect = true;
+                        node.ReturnOnSelect = true;
                     }
                     else if (value.TokenType == SemanticTokenType.LiteralFalse)
                     {
-                        node.ExitOnSelect = false;
+                        node.ReturnOnSelect = false;
                     }
                     else
                     {
@@ -769,7 +770,7 @@ namespace TranspileTest
 
         private static void ParseNodeSay(Node root, TokenStream stream)
         {
-            var node = new SayNode("", "");
+            var node = new SayNode("", "", "");
             root.AddChildNode(node);
 
             var parameter = stream.Pop();
@@ -781,6 +782,10 @@ namespace TranspileTest
                     node.ActorId = argumentValue.TokenValue;
                 }
                 else if (parameter.TokenValue == "text:")
+                {
+                    node.Text = argumentValue.TokenValue;
+                }
+                else if (parameter.TokenValue == "position:")
                 {
                     node.Text = argumentValue.TokenValue;
                 }

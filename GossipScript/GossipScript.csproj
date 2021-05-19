@@ -122,11 +122,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Scripts\druidsample.ids.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Scripts\Program_A\" />
     <Folder Include="Scripts\Program_B\" />
   </ItemGroup>

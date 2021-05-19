@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TranspileTest.Nodes;
 using TranspileTest.Parser;
 
@@ -36,11 +33,15 @@ namespace TranspileTest
 
         static void Main(string[] args)
         {
-        /*
-            var nullscript = ParseScript("@GossipScript @p{}");
-            var nullscriptBinary = ParseBinaryScript(new byte[16]);
-            */
+
             var scriptCompiler = new ScriptCompiler();
+
+
+
+            /*
+                var nullscript = ParseScript("@GossipScript @p{}");
+                var nullscriptBinary = ParseBinaryScript(new byte[16]);
+                */
 
             /*
             var scripts = new List<string>
@@ -69,15 +70,23 @@ namespace TranspileTest
             }
     */
 
-            var program = scriptCompiler.CompileScript("Scripts/Test007.gs", new List<string>());
 
+            var program_a = scriptCompiler.CompileScript("Scripts/test002.gs");
+            nodeEngine.RunScriptContinous(program_a.MainScript);
+
+            //var program_a = scriptCompiler.CompileScript("Scripts/Test001.gs");
+            //nodeEngine.RunScriptContinous(program_a.MainScript);
+
+
+            /*
+            var program = scriptCompiler.CompileScript("Scripts/Test007.gs");
             nodeEngine.LoadVariableTable(program.GlobalVariables);
 
             foreach (var s in program.Scripts.Values)
             {
                 nodeEngine.RunScriptContinous(s);
             }
-
+            */
             Console.WriteLine();
         }
 

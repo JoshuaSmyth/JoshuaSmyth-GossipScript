@@ -11,7 +11,7 @@ namespace TranspileTest.Nodes
     {
         public string Text;
         public bool RemoveOnSelect;
-        public bool ExitOnSelect;
+        public bool ReturnOnSelect;
 
         public OptionNode()
         {
@@ -23,7 +23,7 @@ namespace TranspileTest.Nodes
             bw.Write((UInt16)0);
             bw.Write(Text);
             bw.Write(RemoveOnSelect);
-            bw.Write(ExitOnSelect);
+            bw.Write(ReturnOnSelect);
         }
 
         public override void readData(BinaryReader br)
@@ -31,7 +31,7 @@ namespace TranspileTest.Nodes
             br.ReadUInt16();
             Text = br.ReadString();
             RemoveOnSelect = br.ReadBoolean();
-            ExitOnSelect = br.ReadBoolean();
+            ReturnOnSelect = br.ReadBoolean();
         }
         public OptionNode(string text, bool removeOnSelection = false)
         {
