@@ -140,6 +140,18 @@ namespace TranspileTest
             m_tokenizer.AddToken("set-var", SemanticTokenType.NodeInBuilt);
         }
 
+        // Assigns Ids and rewrites the token stream
+        public TokenStream Identify(string script)
+        {
+            // TODO Create Script Identifier class
+            var tokens = m_tokenizer.Tokenize(script);
+            var tokenStream = new TokenStream(tokens);
+
+
+            return tokenStream;
+        }
+
+
         public TokenStream Tokenize(string script)
         {
             var tokens = m_tokenizer.Tokenize(script);
@@ -155,8 +167,12 @@ namespace TranspileTest
 
         public ScriptNode ParseScript(ScriptProgram program, string script)
         {
-            // TODO Should these be converted to semantic tokens first?
-            return ParseScript(program, Tokenize(script));
+            var tokens = Tokenize(script);
+
+            // TODO Run a Check Ids pass
+            // BOOKMARK
+
+            return ParseScript(program, tokens);
         }
 
         private ScriptNode processStream(ScriptProgram program, TokenStream tokenStream)

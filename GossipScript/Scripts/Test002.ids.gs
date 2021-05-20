@@ -1,4 +1,7 @@
-﻿@GossipScript
+﻿[00aabbcc] @GossipScript
+{
+
+}
 
 @p1
 {
@@ -44,9 +47,4 @@
 	}
 
 	say actor:"Narrator" text:"KThx Bye!"
-}
-
-@ids
-{
-
 }

@@ -31,8 +31,17 @@ namespace TranspileTest
             }
         }
 
+        private static TokenStream TokenizeFile(string filename)
+        {
+            var text = File.ReadAllText(filename);
+            return ScriptParser.Tokenize(text);
+        }
+
         static void Main(string[] args)
         {
+            var tokens = TokenizeFile("Scripts/test002.gs");
+            // TODO Create Id assigner to tokenstream - Probably take a program and store of all the ids or something...
+
 
             var scriptCompiler = new ScriptCompiler();
 
@@ -70,9 +79,12 @@ namespace TranspileTest
             }
     */
 
-
             var program_a = scriptCompiler.CompileScript("Scripts/test002.gs");
             nodeEngine.RunScriptContinous(program_a.MainScript);
+
+
+            //var program_a = scriptCompiler.CompileScript("Scripts/test002.gs");
+            //nodeEngine.RunScriptContinous(program_a.MainScript);
 
             //var program_a = scriptCompiler.CompileScript("Scripts/Test001.gs");
             //nodeEngine.RunScriptContinous(program_a.MainScript);
