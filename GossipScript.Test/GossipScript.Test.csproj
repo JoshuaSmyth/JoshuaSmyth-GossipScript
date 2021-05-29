@@ -1,20 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\NUnit3TestAdapter.3.17.0\build\net35\NUnit3TestAdapter.props" Condition="Exists('..\packages\NUnit3TestAdapter.3.17.0\build\net35\NUnit3TestAdapter.props')" />
+  <Import Project="..\packages\NUnit.3.13.2\build\NUnit.props" Condition="Exists('..\packages\NUnit.3.13.2\build\NUnit.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BA58CDBA-6E70-42CD-9747-84BB8744D77C}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>TranspileTest</RootNamespace>
-    <AssemblyName>TranspileTest</AssemblyName>
+    <ProjectGuid>{EFBC1487-6809-4E6E-BA04-AFD9B8AFFAEF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>GossipScript.Test</RootNamespace>
+    <AssemblyName>GossipScript.Test</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +27,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -33,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="nunit.framework, Version=3.13.2.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.13.2\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -43,66 +48,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Engine\Exceptions.cs" />
-    <Compile Include="ExpressionParser\Expression.cs" />
-    <Compile Include="ExpressionParser\ExpressionContext.cs" />
-    <Compile Include="ExpressionParser\HostCall.cs" />
-    <Compile Include="ExpressionParser\HostCallTable.cs" />
-    <Compile Include="ExpressionParser\HostSymbol.cs" />
-    <Compile Include="ExpressionParser\HostSymbolTable.cs" />
-    <Compile Include="ExpressionParser\ExpressionRunner.cs" />
-    <Compile Include="ExpressionParser\ExpressionCompiler.cs" />
-    <Compile Include="ExpressionParser\SemanticAnalyser.cs" />
-    <Compile Include="Nodes\BlockNode.cs" />
-    <Compile Include="Nodes\ConditionalExpressionNode.cs" />
-    <Compile Include="Nodes\OptionNode.cs" />
-    <Compile Include="Nodes\ParallelNode.cs" />
-    <Compile Include="Nodes\PrintNode.cs" />
-    <Compile Include="Nodes\SetVarNode.cs" />
-    <Compile Include="Nodes\WaitNode.cs" />
-    <Compile Include="Parser\Enums.cs" />
-    <Compile Include="Nodes\ConditionalFalseNode.cs" />
-    <Compile Include="Nodes\ConditionalTrueNode.cs" />
-    <Compile Include="Nodes\OnceOnlyNode.cs" />
-    <Compile Include="Nodes\ShowOptionsNode.cs" />
-    <Compile Include="Nodes\PageNode.cs" />
-    <Compile Include="Nodes\SayNode.cs" />
-    <Compile Include="Nodes\CallPageNode.cs" />
-    <Compile Include="Nodes\Node.cs" />
-    <Compile Include="Nodes\ReturnNode.cs" />
-    <Compile Include="Nodes\ScriptNode.cs" />
-    <Compile Include="Parser\InputToken.cs" />
-    <Compile Include="Parser\ScriptCompiler.cs" />
-    <Compile Include="Parser\ScriptProgram.cs" />
-    <Compile Include="ExpressionParser\ExpressionToken.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="MainTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Engine\ScoppedTimer.cs" />
-    <Compile Include="Engine\ScriptEngine.cs" />
-    <Compile Include="Parser\Tokenizer.cs" />
-    <Content Include="Scripts\druidssample.txt">
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="Scripts\Test001.gs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Compile Include="Parser\ScriptParser.cs" />
-    <Compile Include="Engine\ScriptProgram.cs" />
-    <Compile Include="Engine\Serializer.cs" />
-    <Compile Include="TestScripts.cs" />
-    <None Include="Scripts\Test007.gs">
+    </None>
+    <None Include="Scripts\Test001.ids.gs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Scripts\Test002.gs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Scripts\Test002.ids.gs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Scripts\Test003.gs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Scripts\Test001.ids.gs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Scripts\Test001.gs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Scripts\Test002.gs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Scripts\Test004.gs">
@@ -117,13 +80,31 @@
     <None Include="Scripts\Test006.gs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Scripts\Test007.gs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <ProjectReference Include="..\GossipScript\GossipScript.csproj">
+      <Project>{BA58CDBA-6E70-42CD-9747-84BB8744D77C}</Project>
+      <Name>GossipScript</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\druidssample.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Scripts\Program_A\" />
     <Folder Include="Scripts\Program_B\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\NUnit.3.13.2\build\NUnit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit.3.13.2\build\NUnit.props'))" />
+    <Error Condition="!Exists('..\packages\NUnit3TestAdapter.3.17.0\build\net35\NUnit3TestAdapter.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit3TestAdapter.3.17.0\build\net35\NUnit3TestAdapter.props'))" />
+  </Target>
 </Project>

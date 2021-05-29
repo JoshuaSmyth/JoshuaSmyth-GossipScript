@@ -1,5 +1,7 @@
-.vs/GossipScript/v15/.suo
+.vs/GossipScript/DesignTimeBuild/.dtbcache
 .vs/
-GossipScript/bin/
+GossipScript.Test/bin/
+GossipScript.Test/obj/Debug/GossipScript.Test.csproj.CopyComplete
+GossipScript.Test/obj/
+packages/
 GossipScript/obj/
-GossipScript/GossipScript.csproj.user

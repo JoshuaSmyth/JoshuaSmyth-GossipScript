@@ -1,6 +1,8 @@
 ﻿using ExpressionParser;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using TranspileTest.ExpressionParser;
 using TranspileTest.Nodes;
@@ -24,6 +26,11 @@ namespace TranspileTest
             var rv = GetCurrent();
             AdvanceNext();
             return rv;
+        }
+
+        public int Count()
+        {
+            return inputTokens.Count;
         }
 
         public InputToken GetCurrent()
@@ -52,6 +59,11 @@ namespace TranspileTest
         public bool TokensRemaining()
         {
             return index < inputTokens.Count;
+        }
+
+        public List<InputToken> ToList()
+        {
+            return inputTokens.ToList();
         }
     }
 
@@ -151,6 +163,12 @@ namespace TranspileTest
             return tokenStream;
         }
 
+
+        public TokenStream TokenizeFile(string filename)
+        {
+            var text = File.ReadAllText(filename);
+            return this.Tokenize(text);
+        }
 
         public TokenStream Tokenize(string script)
         {
