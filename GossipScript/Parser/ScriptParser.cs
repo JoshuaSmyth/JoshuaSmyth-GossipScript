@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using TranspileTest.ExpressionParser;
 using TranspileTest.Nodes;
@@ -10,6 +11,17 @@ using TranspileTest.Parser;
 
 namespace TranspileTest
 {
+    public class TokenStreamSet
+    {
+        public List<TokenStream> inputTokens = new List<TokenStream>();
+        
+        public TokenStreamSet(TokenStream tokenStream)
+        {
+            inputTokens.Add(tokenStream);
+        }
+    }
+
+
     public class TokenStream
     {
         private List<InputToken> inputTokens;
@@ -40,6 +52,17 @@ namespace TranspileTest
                 return null;
             }
             return inputTokens[index];
+        }
+
+        public string Stringify()
+        {
+            var sb = new StringBuilder();
+            foreach(var t in inputTokens)
+            {
+                sb.Append(t.TokenValue);
+            }
+
+            return sb.ToString();
         }
 
         public InputToken PeekNext()
@@ -73,49 +96,64 @@ namespace TranspileTest
         private static ExpressionCompiler expressionParser = new ExpressionCompiler(new HostCallTable());
         // TODO Add semantic analyser and host function table
 
+
+        public String Identify(TokenStreamSet tokenStreamSet)
+        {
+            // TODO
+
+
+
+            return "";
+        }
+
+
+
         public ScriptParser()
         {
-            m_tokenizer.AddToken("@GossipScript", SemanticTokenType.LabelGossipScript);
-            m_tokenizer.AddToken("{", SemanticTokenType.OpenCurlyBrace);
-            m_tokenizer.AddToken("}", SemanticTokenType.CloseCurlyBrace);
+            m_tokenizer.AddToken("@GossipScript",  IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.LabelGossipScript);
+            m_tokenizer.AddToken("{", IdPolicy.None, SemanticTokenType.OpenCurlyBrace);
+            m_tokenizer.AddToken("}", IdPolicy.None, SemanticTokenType.CloseCurlyBrace);
 
-            m_tokenizer.AddToken("@[a-zA-Z_][a-zA-Z_0-9]*", SemanticTokenType.PageLabel);
-            m_tokenizer.AddToken("\"((\\.)|[^\\\\\"])*\"", SemanticTokenType.StringValue);
+            // Page Label
+            m_tokenizer.AddToken("@[a-zA-Z_][a-zA-Z_0-9]*", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.PageLabel);
 
-            m_tokenizer.AddToken("flag", SemanticTokenType.TypeFlag);
-            m_tokenizer.AddToken("int", SemanticTokenType.TypeInteger);
+            // String Literal
+            m_tokenizer.AddToken("\"((\\.)|[^\\\\\"])*\"", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.StringValue);
 
-            m_tokenizer.AddToken("global", SemanticTokenType.ScopeGlobal);
-            m_tokenizer.AddToken("local", SemanticTokenType.ScopeScript);
+            m_tokenizer.AddToken("flag", IdPolicy.None, SemanticTokenType.TypeFlag);
+            m_tokenizer.AddToken("int", IdPolicy.None, SemanticTokenType.TypeInteger);
 
-            m_tokenizer.AddToken("actor:", SemanticTokenType.NodeParameter);
-            m_tokenizer.AddToken("text:", SemanticTokenType.NodeParameter);
-            m_tokenizer.AddToken("position:", SemanticTokenType.NodeParameter);
-            m_tokenizer.AddToken("node:", SemanticTokenType.NodeParameter);
-            m_tokenizer.AddToken("remove-on-select:", SemanticTokenType.NodeParameter);
-            m_tokenizer.AddToken("exit-on-select:", SemanticTokenType.NodeParameter);
-            m_tokenizer.AddToken("time:", SemanticTokenType.NodeParameter);
+            m_tokenizer.AddToken("global", IdPolicy.None, SemanticTokenType.ScopeGlobal);
+            m_tokenizer.AddToken("local", IdPolicy.None, SemanticTokenType.ScopeScript);
+
+            m_tokenizer.AddToken("actor:", IdPolicy.None, SemanticTokenType.NodeParameter);
+            m_tokenizer.AddToken("text:", IdPolicy.None, SemanticTokenType.NodeParameter);
+            m_tokenizer.AddToken("position:", IdPolicy.None, SemanticTokenType.NodeParameter);
+            m_tokenizer.AddToken("node:", IdPolicy.None, SemanticTokenType.NodeParameter);
+            m_tokenizer.AddToken("remove-on-select:", IdPolicy.None, SemanticTokenType.NodeParameter);
+            m_tokenizer.AddToken("exit-on-select:", IdPolicy.None, SemanticTokenType.NodeParameter);
+            m_tokenizer.AddToken("time:", IdPolicy.None, SemanticTokenType.NodeParameter);
 
             // These are all valid tokens for expressions
 
-            m_tokenizer.AddToken("true", SemanticTokenType.LiteralTrue, OperationType.Operand);
-            m_tokenizer.AddToken("false", SemanticTokenType.LiteralFalse, OperationType.Operand);
-            m_tokenizer.AddToken(@"\$[a-zA-Z_][a-zA-Z_0-9]*", SemanticTokenType.VariableName, OperationType.Operand);
-            m_tokenizer.AddToken("==", SemanticTokenType.Equal);
-            m_tokenizer.AddToken("&&", SemanticTokenType.LogicalAnd);
+            m_tokenizer.AddToken("true", IdPolicy.None, SemanticTokenType.LiteralTrue, OperationType.Operand);
+            m_tokenizer.AddToken("false", IdPolicy.None, SemanticTokenType.LiteralFalse, OperationType.Operand);
+            m_tokenizer.AddToken(@"\$[a-zA-Z_][a-zA-Z_0-9]*", IdPolicy.None, SemanticTokenType.VariableName, OperationType.Operand);
+            m_tokenizer.AddToken("==", IdPolicy.None, SemanticTokenType.Equal);
+            m_tokenizer.AddToken("&&", IdPolicy.None, SemanticTokenType.LogicalAnd);
             m_tokenizer.AddToken(new Regex(Regex.Escape("||")), SemanticTokenType.LogicalOr);
-            m_tokenizer.AddToken(">=", SemanticTokenType.GreaterThanOrEqualTo);
-            m_tokenizer.AddToken("<=", SemanticTokenType.LessThanOrEqualTo);
-            m_tokenizer.AddToken("==", SemanticTokenType.Equal);
-            m_tokenizer.AddToken("!=", SemanticTokenType.NotEqual);
-            m_tokenizer.AddToken(">", SemanticTokenType.GreaterThan);
-            m_tokenizer.AddToken("<", SemanticTokenType.LessThan);
+            m_tokenizer.AddToken(">=", IdPolicy.None, SemanticTokenType.GreaterThanOrEqualTo);
+            m_tokenizer.AddToken("<=", IdPolicy.None, SemanticTokenType.LessThanOrEqualTo);
+            m_tokenizer.AddToken("==", IdPolicy.None, SemanticTokenType.Equal);
+            m_tokenizer.AddToken("!=", IdPolicy.None, SemanticTokenType.NotEqual);
+            m_tokenizer.AddToken(">", IdPolicy.None, SemanticTokenType.GreaterThan);
+            m_tokenizer.AddToken("<", IdPolicy.None, SemanticTokenType.LessThan);
             m_tokenizer.AddToken(new Regex(Regex.Escape("/")), SemanticTokenType.Divide);
-            m_tokenizer.AddToken("%", SemanticTokenType.Modulo);
+            m_tokenizer.AddToken("%", IdPolicy.None, SemanticTokenType.Modulo);
             m_tokenizer.AddToken(new Regex(Regex.Escape("*")), SemanticTokenType.Multiply);
             m_tokenizer.AddToken(new Regex(Regex.Escape("+")), SemanticTokenType.Add);
-            m_tokenizer.AddToken("-", SemanticTokenType.Subtract);
-            m_tokenizer.AddToken("!", SemanticTokenType.Negation);
+            m_tokenizer.AddToken("-", IdPolicy.None, SemanticTokenType.Subtract);
+            m_tokenizer.AddToken("!", IdPolicy.None, SemanticTokenType.Negation);
             m_tokenizer.AddToken(new Regex(Regex.Escape("(")), SemanticTokenType.OpenBracket, OperationType.Operand);
             m_tokenizer.AddToken(new Regex(Regex.Escape(")")), SemanticTokenType.CloseBracket, OperationType.Operand);
             
@@ -124,32 +162,34 @@ namespace TranspileTest
 
 
 
-            m_tokenizer.AddToken("name:", SemanticTokenType.NodeParameter);
-            m_tokenizer.AddToken("type:", SemanticTokenType.NodeParameter);
-            m_tokenizer.AddToken("value:", SemanticTokenType.NodeParameter);
-            m_tokenizer.AddToken("scope:", SemanticTokenType.NodeParameter);
-            m_tokenizer.AddToken("default:", SemanticTokenType.NodeParameter);
+            m_tokenizer.AddToken("name:", IdPolicy.None, SemanticTokenType.NodeParameter);
+            m_tokenizer.AddToken("type:", IdPolicy.None, SemanticTokenType.NodeParameter);
+            m_tokenizer.AddToken("value:", IdPolicy.None, SemanticTokenType.NodeParameter);
+            m_tokenizer.AddToken("scope:", IdPolicy.None, SemanticTokenType.NodeParameter);
+            m_tokenizer.AddToken("default:", IdPolicy.None, SemanticTokenType.NodeParameter);
 
-            m_tokenizer.AddToken("expr:", SemanticTokenType.NodeParameter);
-            m_tokenizer.AddToken("var:", SemanticTokenType.NodeParameter);
+            m_tokenizer.AddToken("expr:", IdPolicy.None, SemanticTokenType.NodeParameter);
+            m_tokenizer.AddToken("var:", IdPolicy.None, SemanticTokenType.NodeParameter);
 
-            m_tokenizer.AddToken("say", SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("call-page", SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("return", SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("once-only", SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("case-true", SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("case-false", SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("show-options", SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("option", SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("wait", SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("print", SemanticTokenType.NodeInBuilt);
 
-            m_tokenizer.AddToken("parallel", SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("block", SemanticTokenType.NodeInBuilt);
+            // Nodes
+            m_tokenizer.AddToken("say", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("call-page", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("return", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("once-only", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("case-true", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("case-false", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("show-options", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("option", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("wait", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("print", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
 
-            m_tokenizer.AddToken("if", SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("def", SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("set-var", SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("parallel", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("block", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+
+            m_tokenizer.AddToken("if", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("def", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("set-var", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
         }
 
         // Assigns Ids and rewrites the token stream

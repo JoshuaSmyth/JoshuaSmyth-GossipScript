@@ -26,6 +26,8 @@ namespace GossipScript.Test
             return Path.Combine(dir, filename); 
         }
 
+
+
         [Test]
         public void ScriptGeneratesExpectedNumberOfTokens()
         {
@@ -43,6 +45,14 @@ namespace GossipScript.Test
             {
                 TestContext.Out.WriteLine(t.TokenType + " : " + t.TokenValue);
             }
+
+            TestContext.Out.WriteLine(tokenStream.Stringify());
+
+            // Reconstruct the text from the tokens
+            scriptParser.Identify(new TokenStreamSet(tokenStream));
+
+
+
         }
     }
 }

@@ -13,9 +13,9 @@ namespace TranspileTest
         public Tokenizer()
         {
             // #.*$
-            m_Tokens.Add(new InputToken(new Regex(@"\#.*$", RegexOptions.Multiline), SemanticTokenType.Comment, OperationType.Operand, TokenDiscardPolicy.Discard));
+            m_Tokens.Add(new InputToken(new Regex(@"\#.*$", RegexOptions.Multiline), SemanticTokenType.Comment, OperationType.Operand));
 
-            m_Tokens.Add(new InputToken(new Regex(@"\s+"), SemanticTokenType.Whitespace, OperationType.Operand, TokenDiscardPolicy.Discard));
+            m_Tokens.Add(new InputToken(new Regex(@"\s+"), SemanticTokenType.Whitespace, OperationType.Operand));
             m_Tokens.Add(new InputToken(new Regex("[0-9]+([.,][0-9]+)?"), SemanticTokenType.DecimalLiteral32, OperationType.Operand));
             m_Tokens.Add(new InputToken(new Regex(","), SemanticTokenType.FunctionArgumentSeperator, OperationType.Operand));
         }
@@ -25,9 +25,9 @@ namespace TranspileTest
             m_Tokens.Add(new InputToken(match, tokenType, operationType, discardPolicy)); // Add tokens in order of precedence
         }
 
-        public void AddToken(string stringToMatch, SemanticTokenType tokenType, OperationType operationType=OperationType.Operator, TokenDiscardPolicy discardPolicy = TokenDiscardPolicy.Keep)
+        public void AddToken(string stringToMatch, IdPolicy idPolicy, SemanticTokenType tokenType, OperationType operationType=OperationType.Operator, TokenDiscardPolicy discardPolicy = TokenDiscardPolicy.Keep)
         {
-            m_Tokens.Add(new InputToken(new Regex(stringToMatch, RegexOptions.IgnoreCase), tokenType, operationType, discardPolicy)); // Add tokens in order of precedence
+            m_Tokens.Add(new InputToken(new Regex(stringToMatch, RegexOptions.IgnoreCase), tokenType, operationType, discardPolicy, idPolicy)); // Add tokens in order of precedence
         }
 
         public List<InputToken> Tokenize(String source)

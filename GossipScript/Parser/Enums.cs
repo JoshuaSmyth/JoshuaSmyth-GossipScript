@@ -19,6 +19,13 @@ namespace TranspileTest
         Discard = 1
     }
 
+    public enum IdPolicy
+    {
+        None = 0,
+        IdTokenPreceedsCurrentToken = 1
+    }
+
+
     public enum OperatorAssociativity
     {
         None = 0,
