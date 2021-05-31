@@ -13,7 +13,7 @@ namespace TranspileTest.Parser
         private SemanticTokenType m_TokenType;
         private readonly TokenDiscardPolicy m_DiscardPolicy;
         private readonly OperationType m_OperationType;
-        private readonly IdPolicy m_IdTokenPreceedsCurrentToken;
+        private readonly IdPolicy m_IdPolicy;
 
         public SemanticTokenType TokenType
         {
@@ -37,19 +37,26 @@ namespace TranspileTest.Parser
 
         public IdPolicy IdPolicy
         {
-            get { return m_IdTokenPreceedsCurrentToken; }
+            get { return m_IdPolicy; }
         }
 
-        public InputToken(Regex match, 
+        public InputToken()
+        {
+
+        }
+
+        public InputToken(Regex match,
+                          IdPolicy idPolicy,
                           SemanticTokenType tokenType, 
                           OperationType operationType = OperationType.Operator, 
-                          TokenDiscardPolicy discardPolicy = TokenDiscardPolicy.Keep,
-                          IdPolicy idPolicity = IdPolicy.IdTokenPreceedsCurrentToken)
+                          TokenDiscardPolicy discardPolicy = TokenDiscardPolicy.Keep
+                          )
         {
             m_TokenType = tokenType;
             m_DiscardPolicy = discardPolicy;
             m_OperationType = operationType;
             m_Regex = match;
+            m_IdPolicy = idPolicy;
         }
     }
 }

@@ -13,11 +13,16 @@ namespace TranspileTest
 {
     public class TokenStreamSet
     {
-        public List<TokenStream> inputTokens = new List<TokenStream>();
-        
+        public List<TokenStream> TokenStreams = new List<TokenStream>();
+
+        public TokenStreamSet()
+        {
+
+        }
+
         public TokenStreamSet(TokenStream tokenStream)
         {
-            inputTokens.Add(tokenStream);
+            TokenStreams.Add(tokenStream);
         }
     }
 
@@ -94,31 +99,141 @@ namespace TranspileTest
     {
         private Tokenizer m_tokenizer = new Tokenizer();
         private static ExpressionCompiler expressionParser = new ExpressionCompiler(new HostCallTable());
-        // TODO Add semantic analyser and host function table
 
-
-        public String Identify(TokenStreamSet tokenStreamSet)
+        
+        public TokenStreamSet Identify(TokenStreamSet tokenStreamSet)
         {
-            // TODO
+            var existingIdentifiers = new HashSet<uint>();
+            foreach(var tokenStream in tokenStreamSet.TokenStreams)
+            {
+                foreach(var token in tokenStream.ToList())
+                {
+                    if (token.TokenType == SemanticTokenType.Identifier)
+                    {
+                        var substring = token.TokenValue.Substring(1, 8);
+                        var value = UInt32.Parse(substring, System.Globalization.NumberStyles.HexNumber);
+
+                        if (existingIdentifiers.Contains(value))
+                        {
+                            throw new Exception("Duplicate identifier found in scripts!");
+                        }
+                        else
+                        {
+                            existingIdentifiers.Add(value);
+                        }
+                    }
+                }
+            }
+
+            var r = new Random();
+
+            // Assume we got here, let's check if we need to add new identifiers
+            var previousToken = new InputToken();
+            var previousPreviousToken = new InputToken();
+
+            // Lets copy
+            var newTokenStreamSet = new TokenStreamSet();
+
+            foreach (var tokenStream in tokenStreamSet.TokenStreams)
+            {
+                var newTokenStream = new List<InputToken>();
+               
 
 
+                foreach (var token in tokenStream.ToList())
+                {
+                    bool shouldGenerateId = false;
+                    if (token.IdPolicy == IdPolicy.IdPreceedsCurrentToken)
+                    {
+                        //if (previousToken.TokenType == SemanticTokenType.Whitespace)
+                        //{
+                        //    if (previousPreviousToken.TokenType == SemanticTokenType.Identifier)
+                        //    {
+                        //        // No need
+                        //    }
+                        //    else
+                        //    {
+                        //        shouldGenerateId = true;
+                        //    }
+                        //}
+                        //else
+                        {
+                            if (previousToken.TokenType == SemanticTokenType.Identifier)
+                            {
+                                // No need
+                            }
+                            else
+                            {
+                                shouldGenerateId = true;
+                            }
+                        }
+                    }
 
-            return "";
+
+                    // Add current token
+                    if (shouldGenerateId)
+                    {
+                        // Add whitespace
+                        if (previousPreviousToken.TokenType != SemanticTokenType.Whitespace)
+                        {
+                            // TODO Add whitespace single space token
+
+                        }
+
+                        // Generate id
+                        uint partA = (uint)r.Next(1 << 16);
+                        uint PartB = (uint)r.Next(1 << 16);
+                        uint newId = (partA << 16) | PartB;
+
+                        // Try again if id already exists
+                        // Note: This would infinite loop if the hashset is full, but that's a lot of identifiers!
+                        while (existingIdentifiers.Contains(newId))
+                        {
+                            partA = (uint)r.Next(1 << 16);
+                            PartB = (uint)r.Next(1 << 16);
+                            newId = (partA << 16) | PartB;
+                        }
+
+
+                        var generatedToken = new InputToken(new Regex("\\[[0-9A-Fa-f]{8}\\]"), IdPolicy.None, SemanticTokenType.Identifier, OperationType.Operand);
+                        generatedToken.TokenValue = String.Format("[{0}]", newId.ToString("0xx"));
+
+                        // todo add whitespace?
+                        newTokenStream.Add(generatedToken);
+                        newTokenStream.Add(token);
+                        previousPreviousToken = generatedToken; // Or the whitespace if we add that.
+                        previousToken = token;
+                    }
+                    else
+                    {
+                        newTokenStream.Add(token);
+
+
+                        previousPreviousToken = previousToken;
+                        previousToken = token;
+                    }
+                }
+
+                newTokenStreamSet.TokenStreams.Add(new TokenStream( newTokenStream ));
+            }
+
+
+            return newTokenStreamSet;
         }
 
 
 
         public ScriptParser()
         {
-            m_tokenizer.AddToken("@GossipScript",  IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.LabelGossipScript);
+            m_tokenizer.AddToken("@GossipScript",  IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.LabelGossipScript);
             m_tokenizer.AddToken("{", IdPolicy.None, SemanticTokenType.OpenCurlyBrace);
             m_tokenizer.AddToken("}", IdPolicy.None, SemanticTokenType.CloseCurlyBrace);
 
             // Page Label
-            m_tokenizer.AddToken("@[a-zA-Z_][a-zA-Z_0-9]*", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.PageLabel);
+            m_tokenizer.AddToken("@[a-zA-Z_][a-zA-Z_0-9]*", IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.PageLabel);
 
             // String Literal
-            m_tokenizer.AddToken("\"((\\.)|[^\\\\\"])*\"", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.StringValue);
+            m_tokenizer.AddToken("\"((\\.)|[^\\\\\"])*\"", IdPolicy.None, SemanticTokenType.StringValue);
 
             m_tokenizer.AddToken("flag", IdPolicy.None, SemanticTokenType.TypeFlag);
             m_tokenizer.AddToken("int", IdPolicy.None, SemanticTokenType.TypeInteger);
@@ -127,7 +242,9 @@ namespace TranspileTest
             m_tokenizer.AddToken("local", IdPolicy.None, SemanticTokenType.ScopeScript);
 
             m_tokenizer.AddToken("actor:", IdPolicy.None, SemanticTokenType.NodeParameter);
-            m_tokenizer.AddToken("text:", IdPolicy.None, SemanticTokenType.NodeParameter);
+
+            // TODO Change this to IdPostCurrentToken
+            m_tokenizer.AddToken("text:", IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.NodeParameter);
             m_tokenizer.AddToken("position:", IdPolicy.None, SemanticTokenType.NodeParameter);
             m_tokenizer.AddToken("node:", IdPolicy.None, SemanticTokenType.NodeParameter);
             m_tokenizer.AddToken("remove-on-select:", IdPolicy.None, SemanticTokenType.NodeParameter);
@@ -141,21 +258,21 @@ namespace TranspileTest
             m_tokenizer.AddToken(@"\$[a-zA-Z_][a-zA-Z_0-9]*", IdPolicy.None, SemanticTokenType.VariableName, OperationType.Operand);
             m_tokenizer.AddToken("==", IdPolicy.None, SemanticTokenType.Equal);
             m_tokenizer.AddToken("&&", IdPolicy.None, SemanticTokenType.LogicalAnd);
-            m_tokenizer.AddToken(new Regex(Regex.Escape("||")), SemanticTokenType.LogicalOr);
+            m_tokenizer.AddToken(new Regex(Regex.Escape("||")), IdPolicy.None, SemanticTokenType.LogicalOr);
             m_tokenizer.AddToken(">=", IdPolicy.None, SemanticTokenType.GreaterThanOrEqualTo);
             m_tokenizer.AddToken("<=", IdPolicy.None, SemanticTokenType.LessThanOrEqualTo);
             m_tokenizer.AddToken("==", IdPolicy.None, SemanticTokenType.Equal);
             m_tokenizer.AddToken("!=", IdPolicy.None, SemanticTokenType.NotEqual);
             m_tokenizer.AddToken(">", IdPolicy.None, SemanticTokenType.GreaterThan);
             m_tokenizer.AddToken("<", IdPolicy.None, SemanticTokenType.LessThan);
-            m_tokenizer.AddToken(new Regex(Regex.Escape("/")), SemanticTokenType.Divide);
+            m_tokenizer.AddToken(new Regex(Regex.Escape("/")), IdPolicy.None, SemanticTokenType.Divide);
             m_tokenizer.AddToken("%", IdPolicy.None, SemanticTokenType.Modulo);
-            m_tokenizer.AddToken(new Regex(Regex.Escape("*")), SemanticTokenType.Multiply);
-            m_tokenizer.AddToken(new Regex(Regex.Escape("+")), SemanticTokenType.Add);
+            m_tokenizer.AddToken(new Regex(Regex.Escape("*")), IdPolicy.None, SemanticTokenType.Multiply);
+            m_tokenizer.AddToken(new Regex(Regex.Escape("+")), IdPolicy.None, SemanticTokenType.Add);
             m_tokenizer.AddToken("-", IdPolicy.None, SemanticTokenType.Subtract);
             m_tokenizer.AddToken("!", IdPolicy.None, SemanticTokenType.Negation);
-            m_tokenizer.AddToken(new Regex(Regex.Escape("(")), SemanticTokenType.OpenBracket, OperationType.Operand);
-            m_tokenizer.AddToken(new Regex(Regex.Escape(")")), SemanticTokenType.CloseBracket, OperationType.Operand);
+            m_tokenizer.AddToken(new Regex(Regex.Escape("(")), IdPolicy.None, SemanticTokenType.OpenBracket, OperationType.Operand);
+            m_tokenizer.AddToken(new Regex(Regex.Escape(")")), IdPolicy.None, SemanticTokenType.CloseBracket, OperationType.Operand);
             
             
             // End valid for expressions
@@ -173,23 +290,23 @@ namespace TranspileTest
 
 
             // Nodes
-            m_tokenizer.AddToken("say", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("call-page", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("return", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("once-only", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("case-true", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("case-false", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("show-options", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("option", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("wait", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("print", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("say", IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("call-page", IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("return", IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("once-only", IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("case-true", IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("case-false", IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("show-options", IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("option", IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("wait", IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("print", IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
 
-            m_tokenizer.AddToken("parallel", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("block", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("parallel", IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("block", IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
 
-            m_tokenizer.AddToken("if", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("def", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
-            m_tokenizer.AddToken("set-var", IdPolicy.IdTokenPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("if", IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("def", IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
+            m_tokenizer.AddToken("set-var", IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.NodeInBuilt);
         }
 
         // Assigns Ids and rewrites the token stream
@@ -204,15 +321,15 @@ namespace TranspileTest
         }
 
 
-        public TokenStream TokenizeFile(string filename)
+        public TokenStream TokenizeFile(string filename, bool applyDiscardPolicy = true)
         {
             var text = File.ReadAllText(filename);
-            return this.Tokenize(text);
+            return this.Tokenize(text, applyDiscardPolicy);
         }
 
-        public TokenStream Tokenize(string script)
+        public TokenStream Tokenize(string script, bool applyDiscardPolicy=true)
         {
-            var tokens = m_tokenizer.Tokenize(script);
+            var tokens = m_tokenizer.Tokenize(script, applyDiscardPolicy);
             var tokenStream = new TokenStream(tokens);
 
             return tokenStream;
@@ -226,9 +343,6 @@ namespace TranspileTest
         public ScriptNode ParseScript(ScriptProgram program, string script)
         {
             var tokens = Tokenize(script);
-
-            // TODO Run a Check Ids pass
-            // BOOKMARK
 
             return ParseScript(program, tokens);
         }
@@ -440,6 +554,14 @@ namespace TranspileTest
             {
                 token = stream.Pop();
                 tokenType = token.TokenType;
+
+                // Skip whitespace
+                if (tokenType == SemanticTokenType.Whitespace ||
+                    tokenType == SemanticTokenType.OpenCurlyBrace)
+                {
+                    continue;
+                }
+
                 if (tokenType == SemanticTokenType.CloseCurlyBrace)
                 {
                     return;
@@ -876,5 +998,6 @@ namespace TranspileTest
                 parameter = stream.Pop();
             }
         }
+
     }
 }

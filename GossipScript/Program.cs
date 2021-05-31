@@ -15,13 +15,8 @@ namespace TranspileTest
 
         static void Main(string[] args)
         {
-            var tokens = ScriptParser.TokenizeFile("Scripts/test002.gs");
-
 
             var scriptCompiler = new ScriptCompiler();
-
-            
-
 
             var program_a = scriptCompiler.CompileScript("Scripts/test002.gs");
             nodeEngine.RunScriptContinous(program_a.MainScript);

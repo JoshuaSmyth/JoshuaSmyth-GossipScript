@@ -13,24 +13,30 @@ namespace TranspileTest
         public Tokenizer()
         {
             // #.*$
-            m_Tokens.Add(new InputToken(new Regex(@"\#.*$", RegexOptions.Multiline), SemanticTokenType.Comment, OperationType.Operand));
+            m_Tokens.Add(new InputToken(new Regex(@"\#.*$", RegexOptions.Multiline), IdPolicy.None, SemanticTokenType.Comment, OperationType.Operand, TokenDiscardPolicy.Discard));
+  
+            m_Tokens.Add(new InputToken(new Regex(@"\s+"), IdPolicy.None, SemanticTokenType.Whitespace, OperationType.Operand, TokenDiscardPolicy.Discard));
 
-            m_Tokens.Add(new InputToken(new Regex(@"\s+"), SemanticTokenType.Whitespace, OperationType.Operand));
-            m_Tokens.Add(new InputToken(new Regex("[0-9]+([.,][0-9]+)?"), SemanticTokenType.DecimalLiteral32, OperationType.Operand));
-            m_Tokens.Add(new InputToken(new Regex(","), SemanticTokenType.FunctionArgumentSeperator, OperationType.Operand));
+
+            m_Tokens.Add(new InputToken(new Regex("[0-9]+([.,][0-9]+)?"), IdPolicy.None, SemanticTokenType.DecimalLiteral32, OperationType.Operand));
+            m_Tokens.Add(new InputToken(new Regex(","), IdPolicy.None, SemanticTokenType.FunctionArgumentSeperator, OperationType.Operand));
+
+            // Match Id
+            m_Tokens.Add(new InputToken(new Regex("\\[[0-9A-Fa-f]{8}\\]"), IdPolicy.None, SemanticTokenType.Identifier, OperationType.Operand));
+
         }
 
-        public void AddToken(Regex match, SemanticTokenType tokenType, OperationType operationType = OperationType.Operator, TokenDiscardPolicy discardPolicy = TokenDiscardPolicy.Keep)
+        public void AddToken(Regex match, IdPolicy IdPolicy, SemanticTokenType tokenType, OperationType operationType = OperationType.Operator, TokenDiscardPolicy discardPolicy = TokenDiscardPolicy.Keep)
         {
-            m_Tokens.Add(new InputToken(match, tokenType, operationType, discardPolicy)); // Add tokens in order of precedence
+            m_Tokens.Add(new InputToken(match, IdPolicy, tokenType, operationType, discardPolicy)); // Add tokens in order of precedence
         }
 
         public void AddToken(string stringToMatch, IdPolicy idPolicy, SemanticTokenType tokenType, OperationType operationType=OperationType.Operator, TokenDiscardPolicy discardPolicy = TokenDiscardPolicy.Keep)
         {
-            m_Tokens.Add(new InputToken(new Regex(stringToMatch, RegexOptions.IgnoreCase), tokenType, operationType, discardPolicy, idPolicy)); // Add tokens in order of precedence
+            m_Tokens.Add(new InputToken(new Regex(stringToMatch, RegexOptions.IgnoreCase), idPolicy, tokenType, operationType, discardPolicy)); // Add tokens in order of precedence
         }
 
-        public List<InputToken> Tokenize(String source)
+        public List<InputToken> Tokenize(String source, bool ApplyDiscardPolicy=true)
         {
             var rv = new List<InputToken>();
 
@@ -43,8 +49,10 @@ namespace TranspileTest
                     var match = token.Regex.Match(source, currentIndex);
                     if (match.Success && (match.Index - currentIndex) == 0)
                     {
-                        if (token.DiscardPolicy == TokenDiscardPolicy.Keep)
-                            rv.Add(new InputToken(token.Regex, token.TokenType, token.OperationType, token.DiscardPolicy) { TokenValue = match.Value });
+                        if (token.DiscardPolicy == TokenDiscardPolicy.Keep || ApplyDiscardPolicy == false)
+                        {
+                            rv.Add(new InputToken(token.Regex, token.IdPolicy, token.TokenType, token.OperationType, token.DiscardPolicy) { TokenValue = match.Value });
+                        }
 
                         currentIndex += match.Length;
                         foundMatch = true;
@@ -88,7 +96,7 @@ namespace TranspileTest
                 }
             }
 
-            m_Tokens.Add(new InputToken(rg, SemanticTokenType.Symbol, OperationType.Operand));
+            m_Tokens.Add(new InputToken(rg, IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.Symbol, OperationType.Operand));
         }
 
         public void ClearAllSymbols()

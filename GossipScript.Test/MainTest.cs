@@ -32,7 +32,7 @@ namespace GossipScript.Test
         public void ScriptGeneratesExpectedNumberOfTokens()
         {
             var scriptParser = new ScriptParser();
-            var tokenStream = scriptParser.TokenizeFile(GetFile("Scripts/test002.gs"));
+            var tokenStream = scriptParser.TokenizeFile(GetFile("Scripts/test002.gs"), applyDiscardPolicy:false);
 
 
             TestContext.Out.WriteLine("Token Count:" + tokenStream.Count());
@@ -49,9 +49,16 @@ namespace GossipScript.Test
             TestContext.Out.WriteLine(tokenStream.Stringify());
 
             // Reconstruct the text from the tokens
-            scriptParser.Identify(new TokenStreamSet(tokenStream));
+            var newTokenStreamSet = scriptParser.Identify(new TokenStreamSet(tokenStream));
 
+            TestContext.Out.WriteLine();
+            TestContext.Out.WriteLine("New Stream");
+            TestContext.Out.WriteLine();
 
+            foreach (var stream in newTokenStreamSet.TokenStreams)
+            {
+                TestContext.Out.WriteLine(stream.Stringify());
+            }
 
         }
     }

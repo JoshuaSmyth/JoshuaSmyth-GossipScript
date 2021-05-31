@@ -5,7 +5,7 @@
 
 @p1
 {
-	once-only
+	[47473AA7] once-only
 	{
 		case-true
 		{

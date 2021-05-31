@@ -22,7 +22,7 @@ namespace TranspileTest
     public enum IdPolicy
     {
         None = 0,
-        IdTokenPreceedsCurrentToken = 1
+        IdPreceedsCurrentToken = 1
     }
 
 
@@ -96,6 +96,8 @@ namespace TranspileTest
         TypeFlag = 700,
         TypeInteger = 701,
         ScopeGlobal = 750,
-        ScopeScript = 751
+        ScopeScript = 751,
+
+        Identifier = 1024
     }
 }

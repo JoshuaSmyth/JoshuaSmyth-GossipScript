@@ -71,6 +71,8 @@ namespace TranspileTest.Parser
             var text = File.ReadAllText(filename);
             var rv = scriptParser.ParseScript(scriptProgram, text);
 
+
+
             // TODO Fix up this mess!
             TestScripts.AssignRandomGuids(rv);
 
