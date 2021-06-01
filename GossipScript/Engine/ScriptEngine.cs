@@ -33,13 +33,13 @@ namespace TranspileTest
 
         public float DeltaTime;
 
-        public HashSet<Guid> AutoRemoveOptionsChecks = new HashSet<Guid>();
+        public HashSet<UInt32> AutoRemoveOptionsChecks = new HashSet<UInt32>();
 
-        public HashSet<Guid> OnceOnlyChecks = new HashSet<Guid>();
+        public HashSet<UInt32> OnceOnlyChecks = new HashSet<UInt32>();
 
         public ExpressionRunner expressionRunner = new ExpressionRunner();
 
-        public void RemoveOption(Guid id)
+        public void RemoveOption(UInt32 id)
         {
             lock (AutoRemoveOptionsChecks)
             {
@@ -50,17 +50,17 @@ namespace TranspileTest
             }
         }
 
-        public bool HasRemovedOption(Guid id)
+        public bool HasRemovedOption(UInt32 id)
         {
             return AutoRemoveOptionsChecks.Contains(id);
         }
 
-        internal bool HasRunOnceOnly(Guid id)
+        internal bool HasRunOnceOnly(UInt32 id)
         {
             return OnceOnlyChecks.Contains(id);
         }
 
-        internal void MarkOnceOnly(Guid id)
+        internal void MarkOnceOnly(UInt32 id)
         {
             lock (OnceOnlyChecks)
             {

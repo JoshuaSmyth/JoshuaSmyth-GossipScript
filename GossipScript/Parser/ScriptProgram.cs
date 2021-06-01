@@ -11,7 +11,7 @@ namespace TranspileTest.Parser
     {
         public ScriptVariableTable GlobalVariables = new ScriptVariableTable();
 
-        public Dictionary<Guid, ScriptNode> Scripts = new Dictionary<Guid, ScriptNode>();
+        public Dictionary<UInt32, ScriptNode> Scripts = new Dictionary<UInt32, ScriptNode>();
 
         public ScriptNode MainScript;
 

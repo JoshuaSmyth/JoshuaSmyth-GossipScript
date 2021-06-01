@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using TranspileTest;
 using System.IO;
-
+using TranspileTest.Parser;
 
 namespace GossipScript.Test
 {
@@ -14,19 +14,43 @@ namespace GossipScript.Test
             Assert.Pass();
         }
 
-        public string GetFile(string filename)
+        public string GetFileName(string filename)
         {
             var dir = Path.GetDirectoryName(typeof(MainTest).Assembly.Location);
             return Path.Combine(dir, filename); 
         }
 
+        public string ReadFile(string filename)
+        {
+            var dir = Path.GetDirectoryName(typeof(MainTest).Assembly.Location);
+            var fullName = Path.Combine(dir, filename);
 
+            return File.ReadAllText(fullName);
+        }
+
+        [Test]
+        public void CompilerCanParseIdentifiersCorrectly()
+        {
+            //11189196
+            var scriptString = ReadFile("Scripts/test001.gs");
+            var scriptProgram = new ScriptProgram();
+
+            var parser = new ScriptParser();
+            var script1 = parser.ParseScript(scriptProgram, scriptString);
+
+            // Check the Gossip Script Id is correct
+            Assert.IsTrue(script1.Id == 11189196);
+
+            // TODO Check the page Ids are correct.
+            //Assert.IsTrue(script1.Id == 11189196);
+
+        }
 
         [Test]
         public void TestIdentifierAndPrettifier()
         {
             var scriptParser = new ScriptParser();
-            var tokenStream = scriptParser.TokenizeFile(GetFile("Scripts/test002.gs"), applyDiscardPolicy:false);
+            var tokenStream = scriptParser.TokenizeFile(ReadFile("Scripts/test002.gs"), applyDiscardPolicy:false);
 
 
             TestContext.Out.WriteLine("Token Count:" + tokenStream.Count());

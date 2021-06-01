@@ -53,7 +53,7 @@ namespace TranspileTest.Nodes
 
     public class Node
     {
-        public Guid Id;
+        public UInt32 Id;
         public NodeType NodeType = NodeType.Undefined;
         public CommandType CommandType = CommandType.Undefined;
 

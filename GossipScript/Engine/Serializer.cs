@@ -36,10 +36,11 @@ namespace TranspileTest
                     var commandType = br.ReadUInt16();
                     var childrenCount = br.ReadInt16();
 
-                    var id = br.Read(idBuffer, 0, 16);
-                    var guid = new Guid(idBuffer);
+                    var id = br.ReadUInt32();
 
-                    node = (ScriptNode) ConstuctNode(br, guid, (NodeType) nodeType, (CommandType) commandType);
+                    //var guid = (UInt32) new Guid(idBuffer);
+
+                    node = (ScriptNode) ConstuctNode(br, id, (NodeType) nodeType, (CommandType) commandType);
 
                     // Read first node
                     for (int i = 0; i < childrenCount; i++)
@@ -51,7 +52,7 @@ namespace TranspileTest
             return node;
         }
 
-        private static Node ConstuctNode(BinaryReader br, Guid id, NodeType nodeType, CommandType commandType)
+        private static Node ConstuctNode(BinaryReader br, UInt32 id, NodeType nodeType, CommandType commandType)
         {
             //Console.WriteLine(nodeType);
             switch(nodeType)
@@ -175,10 +176,9 @@ namespace TranspileTest
             var commandType = br.ReadUInt16();
             var childrenCount = br.ReadInt16();
 
-            var id = br.Read(idBuffer, 0, 16);
-            var guid = new Guid(idBuffer);
+            var id = br.ReadUInt32();
 
-            var node = ConstuctNode(br, guid, (NodeType) nodeType, (CommandType) commandType);
+            var node = ConstuctNode(br, id, (NodeType) nodeType, (CommandType) commandType);
             root.AddChildNode(node);
             
             for (int i = 0; i < childrenCount; i++)
@@ -213,7 +213,8 @@ namespace TranspileTest
             bw.Write((ushort)root.NodeType);
             bw.Write((ushort)root.CommandType);
             bw.Write((ushort)root.Children.Count);
-            bw.Write(root.Id.ToByteArray());
+            bw.Write((UInt32) root.Id);
+
             // TODO Write parameter count, write keys and values
             root.writeData(bw);
             foreach (var n in root.Children)

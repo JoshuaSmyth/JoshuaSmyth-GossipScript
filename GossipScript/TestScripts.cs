@@ -9,9 +9,12 @@ namespace TranspileTest
 {
     public static class TestScripts
     {
+        private static Random random = new Random();
+
         public static void AssignRandomGuids(Node root)
         {
-            root.Id = Guid.NewGuid();
+            root.Id = (UInt32)random.Next();
+
             foreach(var r in root.Children)
             {
                 AssignRandomGuids(r);

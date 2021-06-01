@@ -1,4 +1,8 @@
-﻿[00aabbccdd] @GossipScript
+﻿[00aabbcc] 
+@GossipScript
+{
+
+}
 
 # This is a comment
 
