@@ -1,13 +1,7 @@
 ﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GossipScript;
 using TranspileTest;
 using System.IO;
-using System.Diagnostics;
+
 
 namespace GossipScript.Test
 {
@@ -29,7 +23,7 @@ namespace GossipScript.Test
 
 
         [Test]
-        public void ScriptGeneratesExpectedNumberOfTokens()
+        public void TestIdentifierAndPrettifier()
         {
             var scriptParser = new ScriptParser();
             var tokenStream = scriptParser.TokenizeFile(GetFile("Scripts/test002.gs"), applyDiscardPolicy:false);
@@ -59,7 +53,6 @@ namespace GossipScript.Test
             {
                 TestContext.Out.WriteLine(stream.Stringify());
             }
-
         }
     }
 }

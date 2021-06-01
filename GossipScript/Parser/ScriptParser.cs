@@ -137,26 +137,16 @@ namespace TranspileTest
             foreach (var tokenStream in tokenStreamSet.TokenStreams)
             {
                 var newTokenStream = new List<InputToken>();
-               
 
 
-                foreach (var token in tokenStream.ToList())
+                var tokenList = tokenStream.ToList();
+                for(int i=0; i<tokenList.Count; i++)
                 {
+                    var token = tokenList[i];
+
                     bool shouldGenerateId = false;
                     if (token.IdPolicy == IdPolicy.IdPreceedsCurrentToken)
                     {
-                        //if (previousToken.TokenType == SemanticTokenType.Whitespace)
-                        //{
-                        //    if (previousPreviousToken.TokenType == SemanticTokenType.Identifier)
-                        //    {
-                        //        // No need
-                        //    }
-                        //    else
-                        //    {
-                        //        shouldGenerateId = true;
-                        //    }
-                        //}
-                        //else
                         {
                             if (previousToken.TokenType == SemanticTokenType.Identifier)
                             {
@@ -169,16 +159,30 @@ namespace TranspileTest
                         }
                     }
 
+                    if (token.IdPolicy == IdPolicy.IdPostCurrentToken)
+                    {
+                        if (i+1 < tokenList.Count)
+                        {
+                            var nextToken = tokenList[i + 1];
+                            if (nextToken.TokenType == SemanticTokenType.Identifier)
+                            {
+                                // No need
+                            }
+                            else
+                            {
+                                shouldGenerateId = true;
+                            }
+                         }
+                        else
+                        {
+                            throw new Exception("Unexpected end of tokenstream");
+                        }
+                    }
 
                     // Add current token
                     if (shouldGenerateId)
                     {
-                        // Add whitespace
-                        if (previousPreviousToken.TokenType != SemanticTokenType.Whitespace)
-                        {
-                            // TODO Add whitespace single space token
 
-                        }
 
                         // Generate id
                         uint partA = (uint)r.Next(1 << 16);
@@ -196,13 +200,30 @@ namespace TranspileTest
 
 
                         var generatedToken = new InputToken(new Regex("\\[[0-9A-Fa-f]{8}\\]"), IdPolicy.None, SemanticTokenType.Identifier, OperationType.Operand);
-                        generatedToken.TokenValue = String.Format("[{0}]", newId.ToString("0xx"));
+                        generatedToken.TokenValue = String.Format("[{0}]", newId.ToString("x"));
+
 
                         // todo add whitespace?
-                        newTokenStream.Add(generatedToken);
-                        newTokenStream.Add(token);
-                        previousPreviousToken = generatedToken; // Or the whitespace if we add that.
-                        previousToken = token;
+                        if (token.IdPolicy == IdPolicy.IdPreceedsCurrentToken)
+                        {
+                            newTokenStream.Add(generatedToken);
+                            newTokenStream.Add(token);
+
+                            previousPreviousToken = generatedToken;
+                            previousToken = token;
+                        }
+                        else if (token.IdPolicy == IdPolicy.IdPostCurrentToken)
+                        {
+                            newTokenStream.Add(token);
+                            newTokenStream.Add(generatedToken);
+                     
+                            previousPreviousToken = token;
+                            previousToken = generatedToken;
+                        }
+                        else
+                        {
+                            throw new Exception("Unhanded Token IdPolicy");
+                        }
                     }
                     else
                     {
@@ -244,7 +265,7 @@ namespace TranspileTest
             m_tokenizer.AddToken("actor:", IdPolicy.None, SemanticTokenType.NodeParameter);
 
             // TODO Change this to IdPostCurrentToken
-            m_tokenizer.AddToken("text:", IdPolicy.IdPreceedsCurrentToken, SemanticTokenType.NodeParameter);
+            m_tokenizer.AddToken("text:", IdPolicy.IdPostCurrentToken, SemanticTokenType.NodeParameter);
             m_tokenizer.AddToken("position:", IdPolicy.None, SemanticTokenType.NodeParameter);
             m_tokenizer.AddToken("node:", IdPolicy.None, SemanticTokenType.NodeParameter);
             m_tokenizer.AddToken("remove-on-select:", IdPolicy.None, SemanticTokenType.NodeParameter);

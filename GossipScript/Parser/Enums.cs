@@ -22,7 +22,8 @@ namespace TranspileTest
     public enum IdPolicy
     {
         None = 0,
-        IdPreceedsCurrentToken = 1
+        IdPreceedsCurrentToken = 1,
+        IdPostCurrentToken = 2
     }
 
 
