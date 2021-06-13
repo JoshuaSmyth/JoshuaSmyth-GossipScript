@@ -345,10 +345,10 @@ namespace TranspileTest
         public TokenStream TokenizeFile(string filename, bool applyDiscardPolicy = true)
         {
             var text = File.ReadAllText(filename);
-            return this.Tokenize(text, applyDiscardPolicy);
+            return this.TokenizeString(text, applyDiscardPolicy);
         }
 
-        public TokenStream Tokenize(string script, bool applyDiscardPolicy=true)
+        public TokenStream TokenizeString(string script, bool applyDiscardPolicy=true)
         {
             var tokens = m_tokenizer.Tokenize(script, applyDiscardPolicy);
             var tokenStream = new TokenStream(tokens);
@@ -363,7 +363,7 @@ namespace TranspileTest
 
         public ScriptNode ParseScript(ScriptProgram program, string script)
         {
-            var tokens = Tokenize(script);
+            var tokens = TokenizeString(script);
 
             return ParseScript(program, tokens);
         }

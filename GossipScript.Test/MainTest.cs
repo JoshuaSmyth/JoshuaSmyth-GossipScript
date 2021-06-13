@@ -50,7 +50,7 @@ namespace GossipScript.Test
         public void TestIdentifierAndPrettifier()
         {
             var scriptParser = new ScriptParser();
-            var tokenStream = scriptParser.TokenizeFile(ReadFile("Scripts/test002.gs"), applyDiscardPolicy:false);
+            var tokenStream = scriptParser.TokenizeString(ReadFile("Scripts/test002.gs"), applyDiscardPolicy:false);
 
 
             TestContext.Out.WriteLine("Token Count:" + tokenStream.Count());
