@@ -16,7 +16,8 @@ namespace TranspileTest
     public enum TokenDiscardPolicy
     {
         Keep = 0,
-        Discard = 1
+        IsWhiteSpace = 1,
+        IsComment = 2
     }
 
     public enum IdPolicy

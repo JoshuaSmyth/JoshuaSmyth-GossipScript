@@ -49,22 +49,9 @@ namespace GossipScript.Test
         [Test]
         public void TestIdentifierAndPrettifier()
         {
+            // TODO Work out how to prettify comments.
             var scriptParser = new ScriptParser();
-            var tokenStream = scriptParser.TokenizeString(ReadFile("Scripts/test002.gs"), applyDiscardPolicy:false);
-
-
-            TestContext.Out.WriteLine("Token Count:" + tokenStream.Count());
-            TestContext.Out.WriteLine();
-
-
-            var tokenList = tokenStream.ToList();
-
-            foreach(var t in tokenList)
-            {
-                TestContext.Out.WriteLine(t.TokenType + " : " + t.TokenValue);
-            }
-
-            TestContext.Out.WriteLine(tokenStream.Stringify());
+            var tokenStream = scriptParser.TokenizeString(ReadFile("Scripts/test002.gs"), applyDiscardPolicy:true);
 
             // Reconstruct the text from the tokens
             var newTokenStreamSet = scriptParser.Identify(new TokenStreamSet(tokenStream));
@@ -75,7 +62,8 @@ namespace GossipScript.Test
 
             foreach (var stream in newTokenStreamSet.TokenStreams)
             {
-                TestContext.Out.WriteLine(stream.Stringify());
+                var output = stream.Stringify();
+                TestContext.Out.WriteLine(output);
             }
         }
     }

@@ -1,11 +1,12 @@
 ﻿@GossipScript
 {
-
+	#Author Joshua Smyth
+	#Date:	13/06/2021
 }
 
 @p1
 {
-	[47473AA7] once-only
+	[47473AA7] once-only # This Comment Should be preserved on the same line as the once-only node
 	{
 		case-true
 		{

@@ -61,10 +61,121 @@ namespace TranspileTest
 
         public string Stringify()
         {
+            // Also prettify
+            // Add 4 spaces per tab
+
+            // Keep a tab stack
+            var indent = 0;
+
             var sb = new StringBuilder();
-            foreach(var t in inputTokens)
+
+            for(int i=0; i<inputTokens.Count; i++)
             {
-                sb.Append(t.TokenValue);
+                var t = inputTokens[i];
+
+                // Pretoken
+                {
+                    if (t.TokenType == SemanticTokenType.LabelGossipScript)
+                    {
+                        sb.Append(Environment.NewLine);
+                    }
+
+                    if (t.TokenType == SemanticTokenType.OpenCurlyBrace)
+                    {
+                        sb.Append(Environment.NewLine);
+                    }
+
+                    if (t.TokenType == SemanticTokenType.CloseCurlyBrace)
+                    {
+                        sb.Append(Environment.NewLine);
+                        indent--;
+                    }
+
+
+                    // Apply the indentation
+                    if (t.TokenType == SemanticTokenType.NodeParameter)
+                    {
+                        sb.Append(" ");
+                    }
+                    else
+                    {
+                        // If the previous token was 
+                        if (i - 1 > 0 && inputTokens[i - 1].TokenType == SemanticTokenType.NodeParameter)
+                        {
+                            // NOOP
+                        }
+                        else
+                        {
+                            if (t.TokenType == SemanticTokenType.StringValue)
+                            {
+                                // NOOP
+                            }
+                            else if (t.TokenType == SemanticTokenType.Identifier)
+                            {
+                                if (i - 1 > 0 && inputTokens[i - 1].TokenType == SemanticTokenType.StringValue)
+                                {
+                                    sb.Append(Environment.NewLine);
+                                    sb.Append(Environment.NewLine);
+                                }
+                                //else
+                                {
+                                    for (int s = 0; s < indent; s++)
+                                    {
+                                        sb.Append("    ");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                for (int s = 0; s < indent; s++)
+                                {
+                                    sb.Append("    ");
+                                }
+                            }
+                        }
+                    }
+
+                    if (t.TokenType == SemanticTokenType.OpenCurlyBrace)
+                    {
+                        indent++;
+                    }
+                }
+
+                // Print Token
+                {
+                    sb.Append(t.TokenValue);
+                }
+
+                // Post Token
+                {
+                    if (t.TokenType == SemanticTokenType.OpenCurlyBrace)
+                    {
+                        sb.Append(Environment.NewLine);
+                    }
+
+
+                    // If the next token is a } don't do this
+                    if (i + 1 < inputTokens.Count && inputTokens[i + 1].TokenType == SemanticTokenType.CloseCurlyBrace)
+                    {
+
+                    }
+                    else
+                    {
+                        if (t.TokenType == SemanticTokenType.CloseCurlyBrace)
+                        {
+                            sb.Append(Environment.NewLine);
+                            sb.Append(Environment.NewLine);
+                        }
+                    }
+
+                    if (t.TokenType == SemanticTokenType.Identifier)
+                    {
+                        if (i - 1 > 0 && inputTokens[i - 1].TokenType != SemanticTokenType.NodeParameter)
+                        {
+                            sb.Append(Environment.NewLine);
+                        }
+                    }
+                }
             }
 
             return sb.ToString();

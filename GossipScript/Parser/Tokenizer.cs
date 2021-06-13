@@ -13,9 +13,9 @@ namespace TranspileTest
         public Tokenizer()
         {
             // #.*$
-            m_Tokens.Add(new InputToken(new Regex(@"\#.*$", RegexOptions.Multiline), IdPolicy.None, SemanticTokenType.Comment, OperationType.Operand, TokenDiscardPolicy.Discard));
+            m_Tokens.Add(new InputToken(new Regex(@"\#.*$", RegexOptions.Multiline), IdPolicy.None, SemanticTokenType.Comment, OperationType.Operand, TokenDiscardPolicy.IsWhiteSpace));
   
-            m_Tokens.Add(new InputToken(new Regex(@"\s+"), IdPolicy.None, SemanticTokenType.Whitespace, OperationType.Operand, TokenDiscardPolicy.Discard));
+            m_Tokens.Add(new InputToken(new Regex(@"\s+"), IdPolicy.None, SemanticTokenType.Whitespace, OperationType.Operand, TokenDiscardPolicy.IsWhiteSpace));
 
 
             m_Tokens.Add(new InputToken(new Regex("[0-9]+([.,][0-9]+)?"), IdPolicy.None, SemanticTokenType.DecimalLiteral32, OperationType.Operand));
