@@ -82,12 +82,28 @@ namespace TranspileTest
 
                     if (t.TokenType == SemanticTokenType.OpenCurlyBrace)
                     {
-                        sb.Append(Environment.NewLine);
+                        // Except if previous was a comment
+                        if (i - 1 > 0 && inputTokens[i - 1].TokenType == SemanticTokenType.Comment)
+                        {
+                            // NOOP
+                        }
+                        else
+                        {
+                            sb.Append(Environment.NewLine);
+                        }
                     }
 
                     if (t.TokenType == SemanticTokenType.CloseCurlyBrace)
                     {
-                        sb.Append(Environment.NewLine);
+                        // Except if previous was a comment
+                        if (i - 1 > 0 && inputTokens[i - 1].TokenType == SemanticTokenType.Comment)
+                        {
+                            // NOOP
+                        }
+                        else
+                        {
+                            sb.Append(Environment.NewLine);
+                        }
                         indent--;
                     }
 
@@ -453,15 +469,15 @@ namespace TranspileTest
         }
 
 
-        public TokenStream TokenizeFile(string filename, bool applyDiscardPolicy = true)
+        public TokenStream TokenizeFile(string filename, bool discardWhitespace = true, bool discardComments = true)
         {
             var text = File.ReadAllText(filename);
-            return this.TokenizeString(text, applyDiscardPolicy);
+            return this.TokenizeString(text, discardWhitespace, discardComments);
         }
 
-        public TokenStream TokenizeString(string script, bool applyDiscardPolicy=true)
+        public TokenStream TokenizeString(string script, bool discardWhitespace=true, bool discardComments=true)
         {
-            var tokens = m_tokenizer.Tokenize(script, applyDiscardPolicy);
+            var tokens = m_tokenizer.Tokenize(script, discardWhitespace, discardComments);
             var tokenStream = new TokenStream(tokens);
 
             return tokenStream;

@@ -49,9 +49,12 @@ namespace GossipScript.Test
         [Test]
         public void TestIdentifierAndPrettifier()
         {
-            // TODO Work out how to prettify comments.
             var scriptParser = new ScriptParser();
-            var tokenStream = scriptParser.TokenizeString(ReadFile("Scripts/test002.gs"), applyDiscardPolicy:true);
+
+            // TODO Write StringifyString() method
+            // TODO Write StringifyFile() method
+
+            var tokenStream = scriptParser.TokenizeString(ReadFile("Scripts/test002.gs"), discardWhitespace:true, discardComments:false);
 
             // Reconstruct the text from the tokens
             var newTokenStreamSet = scriptParser.Identify(new TokenStreamSet(tokenStream));

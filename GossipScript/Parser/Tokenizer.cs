@@ -13,7 +13,7 @@ namespace TranspileTest
         public Tokenizer()
         {
             // #.*$
-            m_Tokens.Add(new InputToken(new Regex(@"\#.*$", RegexOptions.Multiline), IdPolicy.None, SemanticTokenType.Comment, OperationType.Operand, TokenDiscardPolicy.IsWhiteSpace));
+            m_Tokens.Add(new InputToken(new Regex(@"\#.*$", RegexOptions.Multiline), IdPolicy.None, SemanticTokenType.Comment, OperationType.Operand, TokenDiscardPolicy.IsComment));
   
             m_Tokens.Add(new InputToken(new Regex(@"\s+"), IdPolicy.None, SemanticTokenType.Whitespace, OperationType.Operand, TokenDiscardPolicy.IsWhiteSpace));
 
@@ -36,7 +36,7 @@ namespace TranspileTest
             m_Tokens.Add(new InputToken(new Regex(stringToMatch, RegexOptions.IgnoreCase), idPolicy, tokenType, operationType, discardPolicy)); // Add tokens in order of precedence
         }
 
-        public List<InputToken> Tokenize(String source, bool ApplyDiscardPolicy=true)
+        public List<InputToken> Tokenize(String source, bool discardWhitespace=true, bool discardComments=true)
         {
             var rv = new List<InputToken>();
 
@@ -49,7 +49,15 @@ namespace TranspileTest
                     var match = token.Regex.Match(source, currentIndex);
                     if (match.Success && (match.Index - currentIndex) == 0)
                     {
-                        if (token.DiscardPolicy == TokenDiscardPolicy.Keep || ApplyDiscardPolicy == false)
+                        if (token.DiscardPolicy == TokenDiscardPolicy.Keep)
+                        {
+                            rv.Add(new InputToken(token.Regex, token.IdPolicy, token.TokenType, token.OperationType, token.DiscardPolicy) { TokenValue = match.Value });
+                        }
+                        if (token.DiscardPolicy == TokenDiscardPolicy.IsComment && discardComments == false)
+                        {
+                            rv.Add(new InputToken(token.Regex, token.IdPolicy, token.TokenType, token.OperationType, token.DiscardPolicy) { TokenValue = match.Value });
+                        }
+                        if (token.DiscardPolicy == TokenDiscardPolicy.IsWhiteSpace && discardWhitespace == false)
                         {
                             rv.Add(new InputToken(token.Regex, token.IdPolicy, token.TokenType, token.OperationType, token.DiscardPolicy) { TokenValue = match.Value });
                         }
