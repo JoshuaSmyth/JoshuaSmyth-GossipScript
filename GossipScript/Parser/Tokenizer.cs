@@ -13,8 +13,8 @@ namespace TranspileTest
         public Tokenizer()
         {
             // #.*$
-            m_Tokens.Add(new InputToken(new Regex(@"\#.*$", RegexOptions.Multiline), IdPolicy.None, SemanticTokenType.Comment, OperationType.Operand, TokenDiscardPolicy.IsComment));
-  
+            m_Tokens.Add(new InputToken(new Regex(@"\#.*\n"), IdPolicy.None, SemanticTokenType.Comment, OperationType.Operand, TokenDiscardPolicy.IsComment));
+           
             m_Tokens.Add(new InputToken(new Regex(@"\s+"), IdPolicy.None, SemanticTokenType.Whitespace, OperationType.Operand, TokenDiscardPolicy.IsWhiteSpace));
 
 
@@ -49,6 +49,11 @@ namespace TranspileTest
                     var match = token.Regex.Match(source, currentIndex);
                     if (match.Success && (match.Index - currentIndex) == 0)
                     {
+                        if (token.DiscardPolicy == TokenDiscardPolicy.IsComment)
+                        {
+                            bool bbreak = true;
+                        }
+
                         if (token.DiscardPolicy == TokenDiscardPolicy.Keep)
                         {
                             rv.Add(new InputToken(token.Regex, token.IdPolicy, token.TokenType, token.OperationType, token.DiscardPolicy) { TokenValue = match.Value });

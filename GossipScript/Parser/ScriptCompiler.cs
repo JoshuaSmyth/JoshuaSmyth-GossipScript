@@ -14,12 +14,6 @@ namespace TranspileTest.Parser
 
         Random random = new Random(); // TODO Random service
 
-
-        private ulong CombineId(uint scriptId, uint referenceId)
-        {
-            return (ulong) ((ulong)(scriptId << 32) | (ulong) referenceId); 
-        }
-
         private uint RandomUInt32()
         {
             uint thirtyBits = (uint)random.Next(1 << 30);
@@ -29,30 +23,28 @@ namespace TranspileTest.Parser
             return fullRange;
         }
 
-        public void GenerateIdsForScript(List<string> fileNames)
+        public ScriptProgram CompileProgram(List<string> scripts)
         {
+            var rv = new ScriptProgram();
+           
+            foreach (var f in scripts)
+            {
+                var node = scriptParser.ParseScript(rv, f);
+                if (rv.Scripts.Count() == 0)
+                {
+                    rv.AddScript(node);
+                }
+                else
+                {
+                    rv.AddMainScript(node);
+                }
+            }
 
-            UInt32 scriptId = RandomUInt32();
 
-            throw new NotImplementedException();
-
-            // TODO Tokenize all files
-
-            // Obtain all ids
-
-            // Create new ids where required
-
-            // Write new files to disk (note: first create copy
-
-
+            return rv;
         }
 
-        public void GenerateIdsForScript(string fileName)
-        {
-            GenerateIdsForScript(new List<string>() { fileName });
-        }
-
-        public ScriptProgram CompileScript(string startFilename, List<string> fileNames)
+        public ScriptProgram CompileProgram(string startFilename, List<string> fileNames)
         {
             var rv = new ScriptProgram();
             rv.AddMainScript(LoadAndParseFile(rv, startFilename));
@@ -73,15 +65,16 @@ namespace TranspileTest.Parser
 
 
 
-            // TODO Fix up this mess!
-            TestScripts.AssignRandomGuids(rv);
+            // FIXME = We shouldn't need to do this.
+            TestScripts.AssignRandomIdentifiers(rv);
+            // ENDFIX ME
 
             return rv;
         }
 
         internal ScriptProgram CompileScript(string startScript)
         {
-            return CompileScript(startScript, new List<string>());
+            return CompileProgram(startScript, new List<string>());
         }
     }
 }

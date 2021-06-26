@@ -11,13 +11,13 @@ namespace TranspileTest
     {
         private static Random random = new Random();
 
-        public static void AssignRandomGuids(Node root)
+        public static void AssignRandomIdentifiers(Node root)
         {
             root.Id = (UInt32)random.Next();
 
             foreach(var r in root.Children)
             {
-                AssignRandomGuids(r);
+                AssignRandomIdentifiers(r);
             }
         }
     }

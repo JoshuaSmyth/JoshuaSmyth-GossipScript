@@ -50,6 +50,16 @@ namespace TranspileTest
             return inputTokens.Count;
         }
 
+        public InputToken GetPrevious()
+        {
+            var subindex = index - 2; // This is because the popped value is -1 so we want -2
+            if (subindex < 0)
+            {
+                return null;
+            }
+            return inputTokens[subindex];
+        }
+
         public InputToken GetCurrent()
         {
             if (index >= inputTokens.Count)
@@ -228,7 +238,7 @@ namespace TranspileTest
         private static ExpressionCompiler expressionParser = new ExpressionCompiler(new HostCallTable());
 
         
-        public TokenStreamSet Identify(TokenStreamSet tokenStreamSet)
+        public TokenStreamSet AssignIdentifiers(TokenStreamSet tokenStreamSet)
         {
             var existingIdentifiers = new HashSet<uint>();
             foreach(var tokenStream in tokenStreamSet.TokenStreams)
@@ -309,8 +319,6 @@ namespace TranspileTest
                     // Add current token
                     if (shouldGenerateId)
                     {
-
-
                         // Generate id
                         uint partA = (uint)r.Next(1 << 16);
                         uint PartB = (uint)r.Next(1 << 16);
@@ -318,16 +326,24 @@ namespace TranspileTest
 
                         // Try again if id already exists
                         // Note: This would infinite loop if the hashset is full, but that's a lot of identifiers!
+                        int tryCount = 0;
+                        const int MaxRetries = 12;
                         while (existingIdentifiers.Contains(newId))
                         {
                             partA = (uint)r.Next(1 << 16);
                             PartB = (uint)r.Next(1 << 16);
                             newId = (partA << 16) | PartB;
+
+                            tryCount++;
+                            if (tryCount > MaxRetries)
+                            {
+                                throw new Exception("Cannot Generated Valid Identifier: Exceeded max number of retries");
+                            }
                         }
 
 
                         var generatedToken = new InputToken(new Regex("\\[[0-9A-Fa-f]{8}\\]"), IdPolicy.None, SemanticTokenType.Identifier, OperationType.Operand);
-                        generatedToken.TokenValue = String.Format("[{0}]", newId.ToString("x"));
+                        generatedToken.TokenValue = String.Format("[{0}]", newId.ToString("x8"));
 
 
                         // todo add whitespace?
@@ -500,17 +516,20 @@ namespace TranspileTest
             var rv = new ScriptNode();
 
             processScriptHeader(program, rv, tokenStream);
-            // TODO Copy the variables over to the program
-
             processPages(program, rv, tokenStream);
-            processIds(rv, tokenStream);
-
+            
             // Tokenstream should be at the end of the stream
             if (tokenStream.TokensRemaining())
             {
                 throw new Exception("Did not reach end of stream");
             }
             return rv;
+        }
+
+
+        private static uint ConvertIdentifierValueToInt(string id)
+        {
+            return uint.Parse(id.Substring(1,8), System.Globalization.NumberStyles.HexNumber);
         }
 
         private void processScriptHeader(ScriptProgram program, ScriptNode root, TokenStream stream)
@@ -524,6 +543,7 @@ namespace TranspileTest
                     if (currentToken.TokenValue == "def")
                     {
                         stream.Pop();
+
                         // Load name/scope/default value
                         ParseHeaderNodeDefNode(program, root, stream);
                     }
@@ -535,6 +555,10 @@ namespace TranspileTest
                 else
                 {
                     stream.AdvanceNext();
+                }
+                if (currentToken.TokenType == SemanticTokenType.Identifier)
+                {
+                    root.Id = ConvertIdentifierValueToInt(currentToken.TokenValue);
                 }
 
                 // We hit the first page
@@ -666,10 +690,28 @@ namespace TranspileTest
             while (stream.TokensRemaining() && stream.PeekNext().TokenType != SemanticTokenType.PageLabel)
             {
                 var token = stream.Pop();
-                var tokenType = token.TokenType;
-                if (tokenType == SemanticTokenType.PageLabel)
+
+                // Skip the id and assume we can fix it up later.
+                if (token.TokenType == SemanticTokenType.Identifier)
                 {
+                    token = stream.Pop();
+                }
+
+
+                if (token.TokenType == SemanticTokenType.PageLabel)
+                {
+                    var id = stream.GetPrevious();
+                    
                     var page = root.AddChildNode(new PageNode(token.TokenValue));
+                    if (id.TokenType == SemanticTokenType.Identifier)
+                    {
+                        page.Id = ConvertIdentifierValueToInt(id.TokenValue);
+                    } 
+                    else
+                    {
+                        // TODO Should we throw an error here?
+                    }
+                    
                     ParseNodePage(program, page, stream);
                 }
                 else
@@ -679,10 +721,6 @@ namespace TranspileTest
             }
         }
 
-        private void processIds(Node root, TokenStream stream)
-        {
-            // TODO
-        }
 
         private void ParseNodePage(ScriptProgram scriptProgram, Node root, TokenStream stream)
         {
@@ -709,6 +747,10 @@ namespace TranspileTest
                 {
                     continue;
                 }
+                if (tokenType == SemanticTokenType.Identifier)
+                {
+                    continue;
+                }
 
                 if (tokenType == SemanticTokenType.CloseCurlyBrace)
                 {
@@ -720,13 +762,21 @@ namespace TranspileTest
                 }
                 else
                 {
-                    throw new NotImplementedException();
+                    throw new NotImplementedException("Unexpected Token Type:"+ tokenType);
                 }
             }
         }
 
         private static void ParseNode(ScriptProgram program, Node root, InputToken currentToken, TokenStream stream)
         {
+            // Special Id handling
+            if (currentToken.TokenType == SemanticTokenType.Identifier)
+            {
+                // Skip the identifier and assume it will be correctly read later.
+                currentToken = stream.Pop();
+            }
+            
+
             if (currentToken.TokenValue == "say")
             {
                 ParseNodeSay(root, stream);
@@ -854,9 +904,19 @@ namespace TranspileTest
                 else if (parameter.TokenValue == "text:")
                 {
                     var value = stream.Pop();
-                    if (value.TokenType == SemanticTokenType.StringValue)
+                    if (value.TokenType == SemanticTokenType.Identifier)
+                    {
+                        node.Id = ConvertIdentifierValueToInt(value.TokenValue);
+                        parameter = stream.Pop();
+                        node.Text = parameter.TokenValue;
+                    }
+                    else if (value.TokenType == SemanticTokenType.StringValue)
                     {
                         node.Text = value.TokenValue;
+                    }
+                    else
+                    {
+                        throw new Exception("Invalid Token parameter value");
                     }
                 }
                 else
@@ -1039,6 +1099,13 @@ namespace TranspileTest
         private static void ParseNodeChildren(ScriptProgram program, Node node, TokenStream stream)
         {
             var nexttype = stream.Pop().TokenType;
+
+            if (nexttype == SemanticTokenType.Identifier)
+            {
+                // Skip the id and assume we will parse it correctly later.
+                nexttype = stream.Pop().TokenType;
+            }
+
             if (nexttype == SemanticTokenType.OpenCurlyBrace)
             {
                 // Read All children
@@ -1120,18 +1187,29 @@ namespace TranspileTest
             var parameter = stream.Pop();
             while (parameter.TokenType == SemanticTokenType.NodeParameter)
             {
-                var argumentValue = stream.Pop();
+                var argumentToken = stream.Pop();
+
+
                 if (parameter.TokenValue == "actor:")
                 {
-                    node.ActorId = argumentValue.TokenValue;
+                    node.ActorId = argumentToken.TokenValue;
                 }
                 else if (parameter.TokenValue == "text:")
                 {
-                    node.Text = argumentValue.TokenValue;
+                    if (argumentToken.TokenType == SemanticTokenType.Identifier)
+                    {
+                        node.Id = ConvertIdentifierValueToInt(argumentToken.TokenValue);
+                        argumentToken = stream.Pop();
+                        node.Text = argumentToken.TokenValue;
+                    }
+                    else
+                    {
+                        node.Text = argumentToken.TokenValue;
+                    }
                 }
                 else if (parameter.TokenValue == "position:")
                 {
-                    node.Text = argumentValue.TokenValue;
+                    node.Text = argumentToken.TokenValue;
                 }
                 else
                 {

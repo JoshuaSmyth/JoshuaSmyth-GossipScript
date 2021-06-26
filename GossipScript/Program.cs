@@ -46,7 +46,7 @@ namespace TranspileTest
         private static ScriptNode LoadScript(string filename)
         {
             var script4 = ParseScript(File.ReadAllText("Scripts/" + filename));
-            TestScripts.AssignRandomGuids(script4);
+            TestScripts.AssignRandomIdentifiers(script4);
             var serial4 = Serializer.Write(script4);
             script4 = ParseBinaryScript(serial4);
 

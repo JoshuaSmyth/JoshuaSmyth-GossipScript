@@ -2,6 +2,7 @@
 using TranspileTest;
 using System.IO;
 using TranspileTest.Parser;
+using System.Collections.Generic;
 
 namespace GossipScript.Test
 {
@@ -31,7 +32,7 @@ namespace GossipScript.Test
         [Test]
         public void CompilerCanParseIdentifiersCorrectly()
         {
-            //11189196
+            // Id should be 11189196
             var scriptString = ReadFile("Scripts/test001.gs");
             var scriptProgram = new ScriptProgram();
 
@@ -40,34 +41,34 @@ namespace GossipScript.Test
 
             // Check the Gossip Script Id is correct
             Assert.IsTrue(script1.Id == 11189196);
-
-            // TODO Check the page Ids are correct.
-            //Assert.IsTrue(script1.Id == 11189196);
-
         }
 
         [Test]
         public void TestIdentifierAndPrettifier()
         {
+            var compiler = new ScriptCompiler();
             var scriptParser = new ScriptParser();
-
-            // TODO Write StringifyString() method
-            // TODO Write StringifyFile() method
-
+    
             var tokenStream = scriptParser.TokenizeString(ReadFile("Scripts/test002.gs"), discardWhitespace:true, discardComments:false);
-
-            // Reconstruct the text from the tokens
-            var newTokenStreamSet = scriptParser.Identify(new TokenStreamSet(tokenStream));
+            var newTokenStreamSet = scriptParser.AssignIdentifiers(new TokenStreamSet(tokenStream));
 
             TestContext.Out.WriteLine();
             TestContext.Out.WriteLine("New Stream");
             TestContext.Out.WriteLine();
 
+            var scripts = new List<string>();
             foreach (var stream in newTokenStreamSet.TokenStreams)
             {
                 var output = stream.Stringify();
+                scripts.Add(output);
+
                 TestContext.Out.WriteLine(output);
             }
+
+            var program = compiler.CompileProgram(scripts);
+
+            // TODO Some basic sanity checking
+
         }
     }
 }
